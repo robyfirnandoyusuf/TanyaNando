@@ -39,10 +39,10 @@ class HookController extends Controller
             -----------------------------------------------
             Ada 3 status pada setiap pertanyaanmu 
 
-            Waiting : menunggu dikerjakan / dibaca Bos Nando
-            Progress : dalam masa pengerjaan oleh Bos Nando (jadi sabar ya ! ^_^)
-            Done : pengerjaan sudah selesai / pertanyaan sudah terjawab ^_^
-            Pending : pertanyaanmu / proses pengerjaan dipending karena ada hal lain yang harus didahulukan jadi sabar ya ^_^, Bos Nando bukan ninja yang bisa bikin bunshin :)
+            - Waiting : menunggu dikerjakan / dibaca Bos Nando
+            - Progress : dalam masa pengerjaan oleh Bos Nando (jadi sabar ya ! ^_^)
+            - Done : pengerjaan sudah selesai / pertanyaan sudah terjawab ^_^
+            - Pending : pertanyaanmu / proses pengerjaan dipending karena ada hal lain yang harus didahulukan jadi sabar ya ^_^, Bos Nando bukan ninja yang bisa bikin bunshin :)
 
 
             1. gunakan prefix "tanya:" dan lanjutkan isi pertanyaanmu untuk bertanya, contohnya tanya:ndo uang purun ?
