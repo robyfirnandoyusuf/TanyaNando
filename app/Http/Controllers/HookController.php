@@ -116,9 +116,12 @@ class HookController extends Controller
         //     $waiting += 1;
         // }
         $progress = Inbox::progress()->pluck('code')->toArray();
-        $progress = implode(",", $progress);
+		$progressConcat = "";
+		foreach ($progress as $key => $value) {
+			$progressConcat .= "\n - $value"; 
+		}
         
-        $template = urlencode("===================== \n<b>ID PERTANYAAN</b> : $code\n<b>ANTRIAN KE : $waiting</b>\n<b>STATUS : WAITING \xE2\x9A\xA0</b>\n<b>Bos Nando sedang progress ID Pertanyaan lainnya : $progress 🧑‍💻</b>");
+        $template = urlencode("===================== \n<b>ID PERTANYAAN</b> : $code\n<b>ANTRIAN KE : $waiting</b>\n<b>STATUS : WAITING \xE2\x9A\xA0</b>\n<b>Bos Nando sedang progress ID Pertanyaan lainnya 🧑‍💻 : $progressConcat </b>");
         $ans = [
             "OK, pertanyaan mu aku tampung dulu ya ! $template\n",
             "Pertanyaanmu aku tampung dulu ya !, sabar tunggu giliran antrianmu $template\n",
