@@ -27,7 +27,7 @@ class HookController extends Controller
         
         if (strpos(strtolower($message), "/start") === 0) {
             $senderName = $update["message"]["from"]['first_name'] ?? $update["message"]["from"]['username'];
-            $ans = "Selamat datang $senderName. Silahkan tanyakan hal seputar Kerjaan, Programming dan IT Security (CTF) !";
+            $ans = "Selamat datang $senderName. Silahkan tanyakan hal seputar Kerjaan, Programming dan IT Security (CTF), cara pakai dan aturan kamu ketik <b>/help</b>!";
             file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$ans&parse_mode=HTML");
             $this->forwardMessage($chatID, $messageId);
         }
