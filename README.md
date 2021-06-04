@@ -3,6 +3,8 @@
 
 Sebuah bot telegram dibuat atas dasar kebutuhan dan keisengan karena SERING KETETERAN GOBLOG >_<
 
+### Link Bot : [HERE](https://t.me/tanyanandobot)
+
 ## Credit : 
 - [CRUDBooster by Ferry Ariawan](https://github.com/crocodic-studio/crudbooster)
 
