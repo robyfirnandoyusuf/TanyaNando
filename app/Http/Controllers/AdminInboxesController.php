@@ -10,6 +10,10 @@ use CRUDBooster;
 
 class AdminInboxesController extends \crocodicstudio\crudbooster\controllers\CBController
 {
+	public function __construct()
+    {
+        $this->api = 'https://api.telegram.org/bot'.env('TOKEN');
+    }
 
 	public function cbInit()
 	{
@@ -352,18 +356,24 @@ class AdminInboxesController extends \crocodicstudio\crudbooster\controllers\CBC
 
 	//By the way, you can still create your own method in here... :) 
 	public function getSetStatus($status,$id) {
-		// DB::table('products')->where('id',$id)->update(['status'=>$status]);
 		$i = Inbox::findOrFail($id);
 		$i->status = $status;
 		$i->save();
-		
+
+		$txtStatus = strtoupper(Inbox::STATUS[$status]);
+		$message = <<<TEXT
+		--------------------------------------------
+		------- LAPORAN STATUS PERTANYAANMU  -------
+		--------------------------------------------
+		Username Penanya : $i->username
+		Nama Penanya : $i->name
+		Status : $txtStatus
+		Pesan : $i->message
+		--------------------------------------------
+		TEXT;
+		$message = urlencode("```$message```");
+		file_get_contents($this->api."/sendmessage?chat_id=".$i->chat_id."&text=$message&parse_mode=markdown");
 		//This will redirect back and gives a message
 		return CRUDBooster::redirect($_SERVER['HTTP_REFERER'],"The status product has been updated !","success");
 	 }
-	// public function getProgress($id)
-	// {
-	// 	dd($id);
-	// 	cb()->update("fooBar", $id, ["status" => "success"]);
-	// 	return cb()->redirectBack("The data has been updated!", "success");
-	// }
 }
