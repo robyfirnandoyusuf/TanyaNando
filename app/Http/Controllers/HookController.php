@@ -23,88 +23,116 @@ class HookController extends Controller
         $update = json_decode(file_get_contents("php://input"), TRUE);
         $chatID = $update["message"]["chat"]["id"];
         $message = $update["message"]["text"] ?? null;
-        $messageId = $update["message"]["message_id"];
         
-        if (strpos(strtolower($message), "/start") === 0) {
-            $senderName = $update["message"]["from"]['first_name'] ?? $update["message"]["from"]['username'];
-            $ans = "Selamat datang $senderName. Silahkan tanyakan hal seputar Kerjaan, Programming dan IT Security (CTF), cara pakai dan aturan kamu ketik <b>/help</b>!";
-            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$ans&parse_mode=HTML");
-            $this->forwardMessage($chatID, $messageId);
+        switch (true) {
+            case strpos(strtolower($message), "/start") === 0:
+                $this->handleStart($update, $message, $chatID);
+                break;
+            case strpos(strtolower($message), "/help") === 0:
+                $this->handleHelp($update, $message, $chatID);
+                break;
+            case strpos(strtolower($message), "tanya:") === 0:
+                $this->handleTanya($update, $message, $chatID);
+                break;
+            case strpos(strtolower($message), "cek:") === 0:
+                $this->handleCek($update, $message, $chatID);
+                break;
+            default:
+                file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=Pesanmu tidak termasuk pertanyaan atau perintah cek. Silahkan baca kembali bantuan pada /help untuk bertanya atau memeriksa progress !&parse_mode=HTML");
+                break;
+        }
+    }
+
+    public function handleStart($update, $message, $chatID)
+    {
+        $messageId = $update["message"]["message_id"];
+        $senderName = $update["message"]["from"]['first_name'] ?? $update["message"]["from"]['username'];
+        $ans = "Selamat datang $senderName. Silahkan tanyakan hal seputar Kerjaan, Programming dan IT Security (CTF), cara pakai dan aturan kamu ketik <b>/help</b>!";
+        file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$ans&parse_mode=HTML");
+        $this->forwardMessage($chatID, $messageId);
+    }
+
+    public function handleTanya($update, $message, $chatID)
+    {
+        $messageId = $update["message"]["message_id"];
+
+        $code = $this->generateRandomString(7);
+        $ins = $this->insert($update, $code);
+        if (!$ins) {
+            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=Ada error nih ketika nampung pertanyaanmu, kontak bos Nando via WA ya !&parse_mode=HTML");
+            die;
+        }
+        
+        $ans = $this->replyBot($code);
+        file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$ans&parse_mode=HTML");
+        $this->forwardMessage($chatID, $messageId);
+    }
+
+    public function handleCek($update, $message, $chatID)
+    {
+        $messageId = $update["message"]["message_id"];
+
+        $code = explode(":", $message)[1] ?? null;
+        if (empty($code)) {
+            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=Ada kesalahan input kode!&parse_mode=HTML");
+            die;
+        }
+        
+        $i = Inbox::where('code', $code)->first();
+
+        if (empty($i)) {
+            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=ID Pertanyaanmu tidak ada nih di database, cek lagi ya !&parse_mode=HTML");
+            die;
         }
 
-        if (strpos(strtolower($message), "/help") === 0) {
-            $message = <<<TEXT
-            --------------------------------------------
-            -------------- Bantuan dan Aturan -------------
-            -----------------------------------------------
-            Ada 3 status pada setiap pertanyaanmu 
+        $ans = "Username Penanya : $i->username\n";
+        $ans .= "Nama Penanya : $i->name\n";
+        $ans .= "Status : $i->status\n";
+        $ans .= "Pesan : $i->message\n";
+        $status = Inbox::STATUS[$i->status] ?? "STATUS TIDAK DIKETAHUI";
+        $message = <<<TEXT
+        --------------------------------------------
+        -------------- CEK PROGRESS ----------------
+        --------------------------------------------
+        Username Penanya : $i->username
+        Nama Penanya : $i->name
+        Status : $status
+        Pesan : $i->message
+        --------------------------------------------
+        TEXT;
 
-            - Waiting : menunggu dikerjakan / dibaca Bos Nando
-            - Progress : dalam masa pengerjaan oleh Bos Nando (jadi sabar ya ! ^_^)
-            - Done : pengerjaan sudah selesai / pertanyaan sudah terjawab ^_^
-            - Pending : pertanyaanmu / proses pengerjaan dipending karena ada hal lain yang harus didahulukan jadi sabar ya ^_^, Bos Nando bukan ninja yang bisa bikin bunshin :)
+        $message = urlencode("```$message```");
+
+        file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$message&parse_mode=markdown");
+        $this->forwardMessage($chatID, $messageId);
+    }
+
+    public function handleHelp($update, $message, $chatID)
+    {
+        $messageId = $update["message"]["message_id"];
+
+        $message = <<<TEXT
+        --------------------------------------------
+        -------------- Bantuan dan Aturan -------------
+        -----------------------------------------------
+        Ada 3 status pada setiap pertanyaanmu 
+
+        - Waiting : menunggu dikerjakan / dibaca Bos Nando
+        - Progress : dalam masa pengerjaan oleh Bos Nando (jadi sabar ya ! ^_^)
+        - Done : pengerjaan sudah selesai / pertanyaan sudah terjawab ^_^
+        - Pending : pertanyaanmu / proses pengerjaan dipending karena ada hal lain yang harus didahulukan jadi sabar ya ^_^, Bos Nando bukan ninja yang bisa bikin bunshin :)
 
 
-            1. gunakan prefix "tanya:" dan lanjutkan isi pertanyaanmu untuk bertanya, contohnya tanya:ndo uang purun ?
-            2. gunakan prefix "cek:" dan isi ID Pertanyaanmu untuk mengecek progress pertanyaanmu, contohnya cek:N31337
-            3. kamu akan segera dapat balasan setelah Bos Nando membaca pesanmu sesuai nomor antrian pertanyaan
-            4. kamu akan mendapat notifikasi dariku jika status pertanyaanmu berubah (WAITING atau PROGRESS atau DONE atau PENDING)
-            --------------------------------------------
-            TEXT;
-            $message = urlencode("```$message```");
-            
-            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$message&parse_mode=markdown");
-            $this->forwardMessage($chatID, $messageId);
-        }
-
-        if (strpos(strtolower($message), "tanya:") === 0) {
-            $code = $this->generateRandomString(7);
-            $ins = $this->insert($update, $code);
-            if (!$ins) {
-                file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=Ada error nih ketika nampung pertanyaanmu, kontak bos Nando via WA ya !&parse_mode=HTML");
-                die;
-            }
-            
-            $ans = $this->replyBot($code);
-            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$ans&parse_mode=HTML");
-            $this->forwardMessage($chatID, $messageId);
-        }
-
-        if (strpos(strtolower($message), "cek:") === 0) {
-            $code = explode(":", $message)[1] ?? null;
-            if (empty($code)) {
-                file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=Ada kesalahan input kode!&parse_mode=HTML");
-                die;
-            }
-            
-            $i = Inbox::where('code', $code)->first();
-
-            if (empty($i)) {
-                file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=ID Pertanyaanmu tidak ada nih di database, cek lagi ya !&parse_mode=HTML");
-                die;
-            }
-
-            $ans = "Username Penanya : $i->username\n";
-            $ans .= "Nama Penanya : $i->name\n";
-            $ans .= "Status : $i->status\n";
-            $ans .= "Pesan : $i->message\n";
-            $status = Inbox::STATUS[$i->status] ?? "STATUS TIDAK DIKETAHUI";
-            $message = <<<TEXT
-            --------------------------------------------
-            -------------- CEK PROGRESS ----------------
-            --------------------------------------------
-            Username Penanya : $i->username
-            Nama Penanya : $i->name
-            Status : $status
-            Pesan : $i->message
-            --------------------------------------------
-            TEXT;
-
-            $message = urlencode("```$message```");
-
-            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$message&parse_mode=markdown");
-            $this->forwardMessage($chatID, $messageId);
-        }
+        1. gunakan prefix "tanya:" dan lanjutkan isi pertanyaanmu untuk bertanya, contohnya tanya:ndo uang purun ?
+        2. gunakan prefix "cek:" dan isi ID Pertanyaanmu untuk mengecek progress pertanyaanmu, contohnya cek:N31337
+        3. kamu akan segera dapat balasan setelah Bos Nando membaca pesanmu sesuai nomor antrian pertanyaan
+        4. kamu akan mendapat notifikasi dariku jika status pertanyaanmu berubah (WAITING atau PROGRESS atau DONE atau PENDING)
+        --------------------------------------------
+        TEXT;
+        $message = urlencode("```$message```");
+        
+        file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$message&parse_mode=markdown");
+        $this->forwardMessage($chatID, $messageId);
     }
 
     public function replyBot($code = null)
