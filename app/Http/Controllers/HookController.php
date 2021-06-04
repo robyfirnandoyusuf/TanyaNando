@@ -32,6 +32,31 @@ class HookController extends Controller
             $this->forwardMessage($chatID, $messageId);
         }
 
+        if (strpos(strtolower($message), "/help") === 0) {
+            $message = <<<TEXT
+            --------------------------------------------
+            -------------- Bantuan dan Aturan -------------
+            -----------------------------------------------
+            Ada 3 status pada setiap pertanyaanmu 
+
+            Waiting : menunggu dikerjakan / dibaca Bos Nando
+            Progress : dalam masa pengerjaan oleh Bos Nando (jadi sabar ya ! ^_^)
+            Done : pengerjaan sudah selesai / pertanyaan sudah terjawab ^_^
+            Pending : pertanyaanmu / proses pengerjaan dipending karena ada hal lain yang harus didahulukan jadi sabar ya ^_^, Bos Nando bukan ninja yang bisa bikin bunshin :)
+
+
+            1. gunakan prefix "tanya:" dan lanjutkan isi pertanyaanmu untuk bertanya, contohnya tanya:ndo uang purun ?
+            2. gunakan prefix "cek:" dan isi ID Pertanyaanmu untuk mengecek progress pertanyaanmu, contohnya cek:N31337
+            3. kamu akan segera dapat balasan setelah Bos Nando membaca pesanmu sesuai nomor antrian pertanyaan
+            4. kamu akan mendapat notifikasi dariku jika status pertanyaanmu berubah (WAITING atau PROGRESS atau DONE atau PENDING)
+            --------------------------------------------
+            TEXT;
+            $message = urlencode("```$message```");
+            
+            file_get_contents($this->api."/sendmessage?chat_id=".$chatID."&text=$message&parse_mode=markdown");
+            $this->forwardMessage($chatID, $messageId);
+        }
+
         if (strpos(strtolower($message), "tanya:") === 0) {
             $code = $this->generateRandomString(7);
             $ins = $this->insert($update, $code);
