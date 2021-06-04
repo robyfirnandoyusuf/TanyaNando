@@ -123,10 +123,10 @@ class HookController extends Controller
 			$n++;
 		}
         if (!empty($progress)) {
-            $progressMsg = "Bos Nando sedang progress ID Pertanyaan lainnya 🧑‍💻 : ".$progressConcat."</b>";
+            $progressMsg = "<b>Bos Nando sedang progress ID Pertanyaan lainnya 🧑‍💻 : ".$progressConcat."</b>";
         }
         
-        $template = urlencode("===================== \n<b>ID PERTANYAAN</b> : $code\n<b>ANTRIAN KE : $waiting</b>\n<b>STATUS : WAITING \xE2\x9A\xA0</b>\n<b>$progressMsg\n");
+        $template = urlencode("===================== \n<b>ID PERTANYAAN</b> : $code\n<b>ANTRIAN KE : $waiting</b>\n<b>STATUS : WAITING \xE2\x9A\xA0</b>\n$progressMsg\n");
         $ans = [
             "OK, pertanyaan mu aku tampung dulu ya ! $template\n",
             "Pertanyaanmu aku tampung dulu ya !, sabar tunggu giliran antrianmu $template\n",
