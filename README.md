@@ -5,7 +5,7 @@ Sebuah bot telegram dibuat atas dasar kebutuhan dan keisengan karena SERING KETE
 
 **NOTE** : 
 
-masih ada bug di method `HookController::forwardMesassage` cara fixingnya chat dulu ke bot mu lalu ambil chat id nya replace `$chatID` dengan chat id yang baru saja kamu dapat. (sek bingung ? chat ae ng emailku [nang kene](mailto:0x3a3a3a@gmail.com))
+masih ada bug di method `HookController::forwardMesassage` cara fixingnya chat dulu ke bot mu lalu ambil chat id nya replace `$chatID` dengan chat id yang baru saja kamu dapat. (sek bingung ? kontak ae ng emailku [nang kene](mailto:0x3a3a3a@gmail.com))
 
 ### Link Bot : [HERE](https://t.me/tanyanandobot)
 
