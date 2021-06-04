@@ -78,7 +78,7 @@ class HookController extends Controller
     public function replyBot($code = null)
     {
         $waiting = Inbox::waiting()->count();
-        if ($waiting == 0) {
+        if ($waiting == 1) {
             $waiting = 1;
         } else {
             $waiting += 1;
