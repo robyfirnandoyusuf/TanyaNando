@@ -85,7 +85,7 @@ class HookController extends Controller
         $ans = [
             "OK, pertanyaan mu aku tampung dulu ya ! $template\n",
             "Pertanyaanmu aku tampung dulu ya !, sabar tunggu giliran antrianmu $template\n",
-            "OK, noted ! sabar nanti juga dikerjakan sama bos Nando $template\n",
+            "OK, noted ! sabar tunggu giliran antrianmu $template\n",
         ];
 
         return $ans[array_rand($ans)];

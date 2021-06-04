@@ -17,3 +17,8 @@ Route::any('/hook', [
     'uses' => 'HookController@store',
     'as' => 'hook.store'
 ]);
+
+Route::post('/backend/set-progress/{id}', [
+    'uses' => 'AdminInboxesController@setProgress',
+    'as' => 'backend.set-progress'
+]);
