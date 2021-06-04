@@ -77,7 +77,12 @@ class HookController extends Controller
 
     public function replyBot($code = null)
     {
-        $waiting = Inbox::waiting()->count()+1;
+        $waiting = Inbox::waiting()->count();
+        if ($waiting == 0) {
+            $waiting = 1;
+        } else {
+            $waiting += 1;
+        }
         $progress = Inbox::progress()->pluck('code')->toArray();
         $progress = implode(",", $progress);
         
