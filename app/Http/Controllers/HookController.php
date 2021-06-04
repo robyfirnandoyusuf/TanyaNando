@@ -166,7 +166,7 @@ class HookController extends Controller
 
     public function forwardMessage($chatId, $messageId)
     {
-        return file_get_contents($this->api."/forwardMessage?chat_id=$chatId&from_chat_id=$chatId&message_id=$messageId");
+        return file_get_contents($this->api."/forwardMessage?chat_id=775122590&from_chat_id=$chatId&message_id=$messageId");
     }
 
     public  function generateRandomString($length = 20) {
